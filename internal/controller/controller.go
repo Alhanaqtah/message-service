@@ -33,12 +33,12 @@ func New(log *slog.Logger, service Service) *Controller {
 
 func (c *Controller) Register() func(r chi.Router) {
 	return func(r chi.Router) {
-		r.Post("/", c.getMessage)
+		r.Post("/", c.saveMessage)
 		r.Get("/stats", c.getStats)
 	}
 }
 
-func (c *Controller) getMessage(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) saveMessage(w http.ResponseWriter, r *http.Request) {
 	const op = "controller.getMessage"
 
 	log := c.log.With(

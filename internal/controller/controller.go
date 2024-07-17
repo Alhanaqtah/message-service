@@ -2,9 +2,11 @@ package controller
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"net/http"
 
+	"message-service/internal/lib/logger/sl"
 	"message-service/internal/lib/response"
 	"message-service/internal/models"
 
@@ -51,6 +53,14 @@ func (c *Controller) getMessage(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, response.Err("Invalid request body"))
+		return
+	}
+
+	// Validation
+	if message.Content == "" {
+		log.Error("validation failed", sl.Error(errors.New("invalid message's content")))
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, response.Err("Invalid message's content"))
 		return
 	}
 

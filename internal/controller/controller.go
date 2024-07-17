@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"net/http"
 
-	"message-service/internal/lib/logger/sl"
 	"message-service/internal/lib/response"
 	"message-service/internal/models"
 
@@ -50,7 +49,6 @@ func (c *Controller) getMessage(w http.ResponseWriter, r *http.Request) {
 	var message models.Message
 	err := render.Decode(r, &message)
 	if err != nil {
-		log.Error("faile to decode request body", sl.Error(err))
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, response.Err("Invalid request body"))
 		return
@@ -58,7 +56,6 @@ func (c *Controller) getMessage(w http.ResponseWriter, r *http.Request) {
 
 	err = c.service.SaveMessage(r.Context(), &message)
 	if err != nil {
-		log.Error("failed to save message", sl.Error(err))
 		render.Status(r, http.StatusInternalServerError)
 		render.JSON(w, r, response.Err("Internal error"))
 		return

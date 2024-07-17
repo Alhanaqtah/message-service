@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -31,7 +32,7 @@ type Storage struct {
 }
 
 type Kafka struct {
-	Brokers string
+	Brokers []string
 	Topic   string
 }
 
@@ -60,7 +61,7 @@ func MustLoad() *Config {
 			Port:     os.Getenv("POSTGRES_PORT"),
 		},
 		&Kafka{
-			Brokers: os.Getenv("KAFKA_BROKERS"),
+			Brokers: strings.Split(os.Getenv("KAFKA_BROKERS"), ", "),
 			Topic:   os.Getenv("KAFKA_TOPIC"),
 		},
 	}

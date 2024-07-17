@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"log/slog"
+
 	"message-service/internal/lib/logger/sl"
 	"message-service/internal/models"
 )

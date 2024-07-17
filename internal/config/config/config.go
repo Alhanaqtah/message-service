@@ -41,7 +41,7 @@ func MustLoad() *Config {
 		log.Panic("error loading .env file")
 	}
 
-	timeout, err := strconv.Atoi(os.Getenv("SERVER_HOST"))
+	timeout, err := strconv.Atoi(os.Getenv("SERVER_TIMEOUT"))
 	if err != nil {
 		log.Panicf(`error loading 'timeout' from .env file: %s`, err)
 	}

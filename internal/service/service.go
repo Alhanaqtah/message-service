@@ -13,7 +13,7 @@ type Storage interface {
 }
 
 type Broker interface {
-	ProduceMessage(ctx context.Context, msg *models.Message) error
+	ProduceMessage(msg *models.Message) error
 }
 
 type Service struct {
@@ -41,7 +41,7 @@ func (s *Service) SaveMessage(ctx context.Context, msg *models.Message) error {
 		return err
 	}
 
-	err = s.broker.ProduceMessage(ctx, msg)
+	err = s.broker.ProduceMessage(msg)
 	if err != nil {
 		log.Error("failed to produce message to broker", sl.Error(err))
 		return err

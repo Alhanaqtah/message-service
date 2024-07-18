@@ -1,7 +1,6 @@
 package kafka
 
 import (
-	"context"
 	"message-service/internal/config/config"
 	"message-service/internal/models"
 	"time"
@@ -16,6 +15,8 @@ type Kafka struct {
 
 func New(cfg *config.Kafka) (*Kafka, error) {
 	config := sarama.NewConfig()
+
+	config.Producer.Return.Successes = true
 	config.Producer.RequiredAcks = sarama.WaitForLocal
 	config.Producer.Compression = sarama.CompressionSnappy
 	config.Producer.Flush.Frequency = 500 * time.Millisecond
@@ -28,7 +29,7 @@ func New(cfg *config.Kafka) (*Kafka, error) {
 	return &Kafka{producer: producer, topic: cfg.Topic}, nil
 }
 
-func (k *Kafka) ProduceMessage(ctx context.Context, msg *models.Message) error {
+func (k *Kafka) ProduceMessage(msg *models.Message) error {
 	m := &sarama.ProducerMessage{
 		Topic: k.topic,
 		Value: sarama.StringEncoder(msg.Content),

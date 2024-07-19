@@ -89,7 +89,7 @@ func main() {
 	log.Info("stopping server...")
 
 	srv.Close()
-	// storage.Close()
+	storage.Close()
 	producer.Close()
 	consumer.Close()
 

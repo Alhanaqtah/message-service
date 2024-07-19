@@ -67,3 +67,7 @@ func (s *Storage) SaveMessage(ctx context.Context, msg *models.Message) error {
 
 	return nil
 }
+
+func (s *Storage) Close() {
+	s.pool.Close()
+}

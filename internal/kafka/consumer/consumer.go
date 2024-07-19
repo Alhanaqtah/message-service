@@ -1,28 +1,35 @@
 package consumer
 
 import (
+	"context"
 	"log"
-	"message-service/internal/config/config"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"message-service/internal/config/config"
+
 	"github.com/IBM/sarama"
 )
+
+type Storage interface {
+	MarkMessageAsProcessed(ctx context.Context, id string) error
+}
 
 type Consumer struct {
 	consumer sarama.Consumer
 	topic    string
+	storage  Storage
 }
 
-func New(cfg *config.Kafka) (*Consumer, error) {
+func New(cfg *config.Kafka, storage Storage) (*Consumer, error) {
 	config := sarama.NewConfig()
 	consumer, err := sarama.NewConsumer(cfg.Brokers, config)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Consumer{consumer: consumer, topic: cfg.Topic}, nil
+	return &Consumer{consumer: consumer, topic: cfg.Topic, storage: storage}, nil
 }
 
 func (c *Consumer) Consume() error {
@@ -39,7 +46,8 @@ func (c *Consumer) Consume() error {
 
 		go func(pc sarama.PartitionConsumer) {
 			for message := range pc.Messages() {
-				log.Printf("Consumed message: %s", string(message.Value))
+				log.Printf("Consumed message: %s\n", message.Value)
+				err = c.storage.MarkMessageAsProcessed(context.Background(), string(message.Key[:]))
 			}
 		}(pc)
 	}

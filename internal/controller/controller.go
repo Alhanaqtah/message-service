@@ -71,6 +71,8 @@ func (c *Controller) saveMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Debug("message saved succesfully")
+
 	render.Status(r, http.StatusOK)
 	render.JSON(w, r, response.Ok("Message saved succesfully"))
 }

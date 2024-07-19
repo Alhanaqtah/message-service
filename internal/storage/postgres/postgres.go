@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"message-service/internal/config/config"
 	"message-service/internal/models"
@@ -57,11 +58,25 @@ func New(cfg *config.Storage) (*Storage, error) {
 	return &Storage{pool: pool}, nil
 }
 
-func (s *Storage) SaveMessage(ctx context.Context, msg *models.Message) error {
+func (s *Storage) SaveMessage(ctx context.Context, msg *models.Message) (*models.Message, error) {
 	const op = "storage.postgres.SaveMessage"
 
-	_, err := s.pool.Exec(ctx, "INSERT INTO messages (content) VALUES ($1)", msg.Content)
-	if err != nil && err != migrate.ErrNoChange {
+	row := s.pool.QueryRow(ctx, "INSERT INTO messages (content) VALUES ($1) RETURNING id, content", msg.Content)
+
+	var message models.Message
+	err := row.Scan(&message.ID, &message.Content)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return &message, nil
+}
+
+func (s *Storage) MarkMessageAsProcessed(ctx context.Context, id string) error {
+	const op = "storage.postgres.MarkMessageAsProcessed"
+
+	_, err := s.pool.Exec(ctx, "UPDATE messages SET status = 'processed', processed_at = $1 WHERE id = $2", time.Now(), id)
+	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 

@@ -9,7 +9,8 @@ import (
 )
 
 type Storage interface {
-	SaveMessage(ctx context.Context, msg *models.Message) error
+	SaveMessage(ctx context.Context, msg *models.Message) (*models.Message, error)
+	MarkMessageAsProcessed(ctx context.Context, id string) error
 }
 
 type Broker interface {
@@ -35,13 +36,13 @@ func (s *Service) SaveMessage(ctx context.Context, msg *models.Message) error {
 
 	log := s.log.With(slog.String("op", op))
 
-	err := s.storage.SaveMessage(ctx, msg)
+	savedMsg, err := s.storage.SaveMessage(ctx, msg)
 	if err != nil {
 		log.Error("failed to save message to storage", sl.Error(err))
 		return err
 	}
 
-	err = s.broker.ProduceMessage(msg)
+	err = s.broker.ProduceMessage(savedMsg)
 	if err != nil {
 		log.Error("failed to produce message to broker", sl.Error(err))
 		return err

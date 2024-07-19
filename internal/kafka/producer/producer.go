@@ -32,6 +32,7 @@ func New(cfg *config.Kafka) (*Producer, error) {
 func (k *Producer) ProduceMessage(msg *models.Message) error {
 	m := &sarama.ProducerMessage{
 		Topic: k.topic,
+		Key:   sarama.StringEncoder(msg.ID),
 		Value: sarama.StringEncoder(msg.Content),
 	}
 

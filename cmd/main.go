@@ -4,7 +4,8 @@ import (
 	"log/slog"
 	"message-service/internal/config/config"
 	"message-service/internal/controller"
-	producer "message-service/internal/kafka"
+	"message-service/internal/kafka/consumer"
+	producer "message-service/internal/kafka/producer"
 	"message-service/internal/lib/logger"
 	"message-service/internal/lib/logger/sl"
 	"message-service/internal/service"
@@ -25,16 +26,29 @@ func main() {
 
 	log.Info("server running...")
 
+	// Init producer
+	producer, err := producer.New(cfg.Kafka)
+	if err != nil {
+		log.Error("failed to connect to broker", sl.Error(err))
+		return
+	}
+
+	// Init & start consumer
+	consumer, err := consumer.New(cfg.Kafka)
+	if err != nil {
+		log.Error("failed to connect to broker", sl.Error(err))
+		return
+	}
+
+	err = consumer.Consume()
+	if err != nil {
+		log.Error("consumer error", sl.Error(err))
+	}
+
 	// Data layer
 	storage, err := postgres.New(cfg.Storage)
 	if err != nil {
 		log.Error("failed to connect to storage", sl.Error(err))
-		return
-	}
-
-	producer, err := producer.New(cfg.Producer)
-	if err != nil {
-		log.Error("failed to connect to broker", sl.Error(err))
 		return
 	}
 
@@ -75,8 +89,9 @@ func main() {
 	log.Info("stopping server...")
 
 	srv.Close()
-	producer.Close()
 	// storage.Close()
+	producer.Close()
+	consumer.Close()
 
 	log.Info("server stopped")
 }

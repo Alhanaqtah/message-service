@@ -14,7 +14,7 @@ type Config struct {
 	Env string
 	*Server
 	*Storage
-	*Producer
+	*Kafka
 }
 
 type Server struct {
@@ -31,7 +31,7 @@ type Storage struct {
 	Database string
 }
 
-type Producer struct {
+type Kafka struct {
 	Brokers []string
 	Topic   string
 }
@@ -60,7 +60,7 @@ func MustLoad() *Config {
 			Host:     os.Getenv("POSTGRES_HOST"),
 			Port:     os.Getenv("POSTGRES_PORT"),
 		},
-		&Producer{
+		&Kafka{
 			Brokers: strings.Split(os.Getenv("KAFKA_BROKERS"), ", "),
 			Topic:   os.Getenv("KAFKA_TOPIC"),
 		},

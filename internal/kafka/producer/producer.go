@@ -13,7 +13,7 @@ type Producer struct {
 	topic    string
 }
 
-func New(cfg *config.Producer) (*Producer, error) {
+func New(cfg *config.Kafka) (*Producer, error) {
 	config := sarama.NewConfig()
 
 	config.Producer.Return.Successes = true

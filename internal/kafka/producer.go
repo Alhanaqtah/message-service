@@ -1,4 +1,4 @@
-package kafka
+package producer
 
 import (
 	"message-service/internal/config/config"
@@ -8,12 +8,12 @@ import (
 	"github.com/IBM/sarama"
 )
 
-type Kafka struct {
+type Producer struct {
 	producer sarama.SyncProducer
 	topic    string
 }
 
-func New(cfg *config.Kafka) (*Kafka, error) {
+func New(cfg *config.Producer) (*Producer, error) {
 	config := sarama.NewConfig()
 
 	config.Producer.Return.Successes = true
@@ -26,10 +26,10 @@ func New(cfg *config.Kafka) (*Kafka, error) {
 		return nil, err
 	}
 
-	return &Kafka{producer: producer, topic: cfg.Topic}, nil
+	return &Producer{producer: producer, topic: cfg.Topic}, nil
 }
 
-func (k *Kafka) ProduceMessage(msg *models.Message) error {
+func (k *Producer) ProduceMessage(msg *models.Message) error {
 	m := &sarama.ProducerMessage{
 		Topic: k.topic,
 		Value: sarama.StringEncoder(msg.Content),
@@ -43,7 +43,7 @@ func (k *Kafka) ProduceMessage(msg *models.Message) error {
 	return nil
 }
 
-func (k *Kafka) Close() error {
+func (k *Producer) Close() error {
 	err := k.producer.Close()
 	if err != nil {
 		return err

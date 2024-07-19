@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"message-service/internal/config/config"
 	"message-service/internal/controller"
-	"message-service/internal/kafka"
+	producer "message-service/internal/kafka"
 	"message-service/internal/lib/logger"
 	"message-service/internal/lib/logger/sl"
 	"message-service/internal/service"
@@ -32,14 +32,14 @@ func main() {
 		return
 	}
 
-	broker, err := kafka.New(cfg.Kafka)
+	producer, err := producer.New(cfg.Producer)
 	if err != nil {
 		log.Error("failed to connect to broker", sl.Error(err))
 		return
 	}
 
 	// Service layr
-	service := service.New(log, storage, broker)
+	service := service.New(log, storage, producer)
 
 	// Controller layer
 	controller := controller.New(log, service)
@@ -75,7 +75,7 @@ func main() {
 	log.Info("stopping server...")
 
 	srv.Close()
-	broker.Close()
+	producer.Close()
 	// storage.Close()
 
 	log.Info("server stopped")

@@ -17,6 +17,7 @@ import (
 
 type Service interface {
 	SaveMessage(ctx context.Context, msg *models.Message) error
+	FetchStats(ctx context.Context) (*models.Stats, error)
 }
 
 type Controller struct {
@@ -78,5 +79,24 @@ func (c *Controller) saveMessage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Controller) getStats(w http.ResponseWriter, r *http.Request) {
+	const op = "controller.getStats"
 
+	log := c.log.With(
+		slog.String("op", op),
+		slog.String("req_id", middleware.GetReqID(r.Context())),
+	)
+
+	log.Debug("fetching statistics")
+
+	stats, err := c.service.FetchStats(r.Context())
+	if err != nil {
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, response.Err("Internal error"))
+		return
+	}
+
+	log.Debug("stats fetched succesfully")
+
+	render.Status(r, http.StatusOK)
+	render.JSON(w, r, stats)
 }

@@ -1,4 +1,4 @@
-CREATE TYPE message_status AS ENUM ('pending', 'processed', 'failed');
+CREATE TYPE message_status AS ENUM ('pending', 'processed');
 
 CREATE TABLE IF NOT EXISTS messages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

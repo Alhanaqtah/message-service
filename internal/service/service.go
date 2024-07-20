@@ -11,6 +11,7 @@ import (
 type Storage interface {
 	SaveMessage(ctx context.Context, msg *models.Message) (*models.Message, error)
 	MarkMessageAsProcessed(ctx context.Context, id string) error
+	FetchStats(ctx context.Context) (*models.Stats, error)
 }
 
 type Broker interface {
@@ -49,4 +50,18 @@ func (s *Service) SaveMessage(ctx context.Context, msg *models.Message) error {
 	}
 
 	return nil
+}
+
+func (s *Service) FetchStats(ctx context.Context) (*models.Stats, error) {
+	const op = "service.FetchStats"
+
+	log := s.log.With(slog.String("op", op))
+
+	stats, err := s.storage.FetchStats(ctx)
+	if err != nil {
+		log.Error("failed to fetch statisctics", sl.Error(err))
+		return nil, err
+	}
+
+	return stats, nil
 }

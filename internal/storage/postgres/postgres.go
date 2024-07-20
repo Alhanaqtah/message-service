@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -81,6 +82,49 @@ func (s *Storage) MarkMessageAsProcessed(ctx context.Context, id string) error {
 	}
 
 	return nil
+}
+
+func (s *Storage) FetchStats(ctx context.Context) (*models.Stats, error) {
+	const op = "storage.postgres.FetchStats"
+
+	var stats models.Stats
+
+	query := `
+	SELECT 
+	    COUNT(*) AS total_messages,
+	    SUM(CASE WHEN status = 'processed' THEN 1 ELSE 0 END) AS processed_messages,
+	    AVG(CASE WHEN status = 'processed' THEN EXTRACT(EPOCH FROM (processed_at - created_at)) ELSE NULL END) AS average_processing_time
+	FROM 
+	    messages;
+	`
+
+	var total sql.NullInt64
+	var processed sql.NullInt64
+	var avg sql.NullFloat64
+	err := s.pool.QueryRow(ctx, query).Scan(&total, &processed, &avg)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	if total.Valid {
+		stats.TotalMessages = int(total.Int64)
+	} else {
+		stats.TotalMessages = 0
+	}
+
+	if processed.Valid {
+		stats.ProcessedMessages = int(processed.Int64)
+	} else {
+		stats.ProcessedMessages = 0
+	}
+
+	if avg.Valid {
+		stats.AverageProcessingTime = time.Duration(avg.Float64 * 1000)
+	} else {
+		stats.AverageProcessingTime = 0
+	}
+
+	return &stats, nil
 }
 
 func (s *Storage) Close() {

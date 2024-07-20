@@ -6,8 +6,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -37,10 +35,10 @@ type Kafka struct {
 }
 
 func MustLoad() *Config {
-	err := godotenv.Load()
-	if err != nil {
-		log.Panic("error loading .env file")
-	}
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	log.Panic("error loading .env file")
+	// }
 
 	timeout, err := strconv.Atoi(os.Getenv("SERVER_TIMEOUT"))
 	if err != nil {

@@ -119,7 +119,7 @@ func (s *Storage) FetchStats(ctx context.Context) (*models.Stats, error) {
 	}
 
 	if avg.Valid {
-		stats.AverageProcessingTime = time.Duration(avg.Float64 * 1000)
+		stats.AverageProcessingTime = time.Duration(avg.Float64)
 	} else {
 		stats.AverageProcessingTime = 0
 	}

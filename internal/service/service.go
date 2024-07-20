@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"log/slog"
-	"time"
 
 	"message-service/internal/lib/logger/sl"
 	"message-service/internal/models"
@@ -12,7 +11,6 @@ import (
 type Storage interface {
 	SaveMessage(ctx context.Context, msg *models.Message) (*models.Message, error)
 	MarkMessageAsProcessed(ctx context.Context, id string) error
-	MarkMessageAsFailed(ctx context.Context, id string) error
 	FetchStats(ctx context.Context) (*models.Stats, error)
 }
 

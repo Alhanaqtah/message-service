@@ -84,17 +84,6 @@ func (s *Storage) MarkMessageAsProcessed(ctx context.Context, id string) error {
 	return nil
 }
 
-func (s *Storage) MarkMessageAsFailed(ctx context.Context, id string) error {
-	const op = "storage.postgres.MarkMessageAsFailed"
-
-	_, err := s.pool.Exec(ctx, "UPDATE messages SET status = 'failed' WHERE id = $1", id)
-	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
-	}
-
-	return nil
-}
-
 func (s *Storage) FetchStats(ctx context.Context) (*models.Stats, error) {
 	const op = "storage.postgres.FetchStats"
 

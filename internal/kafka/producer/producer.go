@@ -19,6 +19,7 @@ func New(cfg *config.Kafka) (*Producer, error) {
 	config.Producer.Return.Successes = true
 	config.Producer.RequiredAcks = sarama.WaitForLocal
 	config.Producer.Compression = sarama.CompressionSnappy
+	config.Producer.Flush.Messages = 10
 	config.Producer.Flush.Frequency = 500 * time.Millisecond
 
 	producer, err := sarama.NewSyncProducer(cfg.Brokers, config)

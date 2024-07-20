@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	"message-service/internal/lib/logger/sl"
 	"message-service/internal/models"
@@ -47,6 +48,9 @@ func (s *Service) SaveMessage(ctx context.Context, msg *models.Message) error {
 	err = s.broker.ProduceMessage(savedMsg)
 	if err != nil {
 		log.Error("failed to produce message to broker", sl.Error(err))
+
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
 
 		err = s.storage.MarkMessageAsFailed(ctx, msg.ID)
 		if err != nil {

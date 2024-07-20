@@ -76,6 +76,7 @@ func main() {
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Error("failed to start server", slog.String("port", cfg.Server.Port), sl.Error(err))
+			os.Exit(1)
 		}
 	}()
 
@@ -83,7 +84,7 @@ func main() {
 	go func() {
 		if err := consumer.Consume(); err != nil {
 			log.Error("failed to start consumer", sl.Error(err))
-			return
+			os.Exit(1)
 		}
 	}()
 

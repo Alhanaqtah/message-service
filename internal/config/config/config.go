@@ -57,6 +57,7 @@ func MustLoad() *Config {
 			Password: os.Getenv("POSTGRES_PASSWORD"),
 			Host:     os.Getenv("POSTGRES_HOST"),
 			Port:     os.Getenv("POSTGRES_PORT"),
+			Database: os.Getenv("POSTGRES_DB"),
 		},
 		&Kafka{
 			Brokers: strings.Split(os.Getenv("KAFKA_BROKERS"), ", "),
